@@ -1,7 +1,42 @@
+//import { Course } from "../models/Course";
+
 import { Router, Request, Response } from "express";
 import multer from "multer";
-import Result from "../models/Results";
-import { createWorker } from "tesseract.js";
+import { v1 as vision } from "@google-cloud/vision";
+import Jimp from "jimp";
+
+type MulterFile = {
+	buffer: Buffer;
+	filename: string;
+	mimetype: string;
+	size: number;
+};
+
+type RequestFiles = {
+	objective_answers?: MulterFile[];
+	theory_answers?: MulterFile[];
+};
+
+async function preprocessImageAndExtractText(buffer: Buffer): Promise<String> {
+	const image = await Jimp.read(buffer);
+	image
+		.grayscale() // Convert to grayscale
+		.contrast(1) // Increase contrast
+		.invert() // Invert colors to enhance text
+		.normalize(); // Normalize the image
+
+	const keyFilename = `${__dirname}../../../project-dissertation-f89ea6389b60[1].json`;
+	const client = new vision.ImageAnnotatorClient({ keyFilename });
+
+	const [result] = await client.documentTextDetection({
+		image: { content: await image.getBufferAsync(Jimp.MIME_PNG) },
+	});
+
+	const fullTextAnnotation = result.fullTextAnnotation;
+	const extractedText = fullTextAnnotation ? fullTextAnnotation.text : "";
+
+	return extractedText!.trim();
+}
 
 const router = Router();
 
@@ -9,135 +44,79 @@ const storage = multer.memoryStorage();
 const upload = multer({ storage });
 
 router.post(
-	"/multiple-choice",
-	upload.array("files"),
+	"/",
+	upload.fields([
+		{ name: "objective_answers", maxCount: 1 },
+		{ name: "theory_answers", maxCount: 10 },
+	]),
 	async (req: Request, res: Response) => {
-		const files = (req as any).files;
-		const { subject, courseCode, year } = req.body;
+		const { course_name, course_code, date, student_name, student_id } =
+			req.body;
+		const files = req.files as RequestFiles;
 
-		if (!files || files.length === 0) {
-			return res.status(400).json({ message: "No files uploaded" });
+		if (
+			!course_name ||
+			!course_code ||
+			!date ||
+			!student_name ||
+			!student_id ||
+			!files?.objective_answers ||
+			!files?.theory_answers
+		) {
+			return res.status(400).send("All fields are required");
 		}
 
-		if (!subject || !courseCode || !year) {
-			return res
-				.status(400)
-				.json({ message: "Subject, course code, and year are required" });
-		}
-		// Process the uploaded file as needed
 		try {
-			const worker = await createWorker();
-			await worker.load();
+			const results = await preprocessImageAndExtractText(
+				files.objective_answers[0].buffer,
+			);
 
-			const results = [];
-			let fileIndex = 0;
-			for (const file of files) {
-				const { data } = await worker.recognize(file.buffer);
-				const text = data.text;
+			console.log(
+				"------------------------ EXTRACTED TEXT Started-----------------------",
+			),
+				console.log(results);
 
-				console.log(
-					`*********************** TEXT ${fileIndex++} *******************`,
-				);
-				console.log(text);
+			console.log(
+				"------------------------ EXTRACTED TEXT Finished-----------------------",
+			);
 
-				// Simulate grading process and extract relevant data from text
-				const objectiveScore = Math.floor(Math.random() * 50) + 1;
-				const theoryScore = Math.floor(Math.random() * 50) + 1;
-				const totalScore = objectiveScore + theoryScore;
-				const feedback = "Sample feedback";
+			// //Extract text from theory answers
+			// const theoryTextPromises = files.theory_answers.map((file) =>
+			// 	preprocessImageAndExtractText(file.buffer)
 
-				const result: any = new Result({
-					studentName: `Student ${results.length + 1}`,
-					objectiveScore,
-					theoryScore,
-					totalScore,
-					feedback,
-					subject,
-					courseCode,
-					year,
-				});
-				await result.save();
-				results.push(result);
-			}
+			// console.log("-----------------------THEORY TEXT ----------------------");
+			// console.log(theoryAnswers);
 
-			await worker.terminate();
+			// console.log("------------------------------------------------------");
 
-			res.status(200).json({
-				message: "Files uploaded and results saved successfully!",
-				results,
-			});
+			// //Save to ExaminationAnswer collection
+			// const examAnswer = new ExaminationAnswer({
+			// 	course_name,
+			// 	cours// );
+			// const theoryTexts = await Promise.all(theoryTextPromises);
+			// const theoryAnswers = theoryTexts
+			// 	.map((result) => result.data.text)
+			// 	.join("\n");
+			//e_code,
+			// 	date,
+			// 	answers: [
+			// 		{
+			// 			student_name,
+			// 			student_id,
+			// 			objective_answers: objectiveText.data.text,
+			// 			theory_answers: theoryAnswers,
+			// 		},
+			// 	],
+			// });
+
+			// await examAnswer.save();
+			res.status(201).send("Answers saved successfully");
 		} catch (error) {
-			console.error("Error processing files:", error);
-			res.status(500).json({ message: "Failed to process files" });
+			console.error(error);
+			res.status(500).send("Error saving answers");
+		} finally {
+			//worker.terminate();
 		}
 	},
 );
-
-router.post(
-	"/essay",
-	upload.array("file"),
-	async (req: Request, res: Response) => {
-		const files = (req as any).files;
-		const { subject, courseCode, year } = req.body;
-		console.log("*****************Essay**********************");
-		console.log(files);
-
-		if (!files || files.length === 0) {
-			return res.status(400).json({ message: "No files uploaded" });
-		}
-
-		if (!subject || !courseCode || !year) {
-			return res
-				.status(400)
-				.json({ message: "Subject, course code, and year are required" });
-		}
-		// Process the uploaded file as needed
-		try {
-			const worker = await createWorker();
-			await worker.load();
-
-			const results = [];
-			let fileIndex = 0;
-			for (const file of files) {
-				const { data } = await worker.recognize(file.buffer);
-				const text = data.text;
-
-				console.log(
-					`*********************** TEXT ${fileIndex++} *******************`,
-				);
-				console.log(text);
-
-				// Simulate grading process and extract relevant data from text
-				const objectiveScore = Math.floor(Math.random() * 50) + 1;
-				const theoryScore = Math.floor(Math.random() * 50) + 1;
-				const totalScore = objectiveScore + theoryScore;
-				const feedback = "Sample feedback";
-
-				const result: any = new Result({
-					studentName: `Student ${results.length + 1}`,
-					objectiveScore,
-					theoryScore,
-					totalScore,
-					feedback,
-					subject,
-					courseCode,
-					year,
-				});
-				await result.save();
-				results.push(result);
-			}
-
-			await worker.terminate();
-
-			res.status(200).json({
-				message: "Files uploaded and results saved successfully!",
-				results,
-			});
-		} catch (error) {
-			console.error("Error processing files:", error);
-			res.status(500).json({ message: "Failed to process files" });
-		}
-	},
-);
-
 export default router;

@@ -2,8 +2,11 @@
 import connectDB from "./db";
 import express, { Application } from "express";
 import cors from "cors";
-import uploadRoute from "./routes/upload";
-import resultsRoute from "./routes/results";
+import uploadRouter from "./routes/upload";
+import resultsRouter from "./routes/results";
+import courseRouter from "./routes/course";
+import examAnswerRouter from "./routes/answer";
+import gradeExamsRouter from "./routes/grade-exam";
 
 const app: Application = express();
 const PORT = process.env.PORT || 4000;
@@ -14,8 +17,11 @@ app.use(express.json());
 // Connect to MongoDB
 connectDB();
 
-app.use("/upload", uploadRoute);
-app.use("/results", resultsRoute);
+app.use("/upload-answers", uploadRouter);
+app.use("/results", resultsRouter);
+app.use("/course", courseRouter);
+app.use("/exam-answers", examAnswerRouter);
+app.use("/grade-exam", gradeExamsRouter);
 
 app.listen(PORT, () => {
 	console.log(`Server is running on port ${PORT}`);
