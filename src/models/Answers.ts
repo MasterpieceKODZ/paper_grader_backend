@@ -8,8 +8,8 @@ interface ExaminationAnswer extends Document {
 	answers: {
 		student_name: string;
 		student_id: string;
-		objective_answers: string;
-		theory_answers: string;
+		objective_answers: {};
+		theory_answers: [];
 	}[];
 }
 
@@ -21,8 +21,8 @@ const ExaminationAnswerSchema: Schema = new Schema({
 		{
 			student_name: { type: String, required: true },
 			student_id: { type: String, required: true },
-			objective_answers: { type: String, required: true },
-			theory_answers: { type: String, required: true },
+			objective_answers: { type: Map, of: String, required: true },
+			theory_answers: { type: [], required: true },
 		},
 	],
 });

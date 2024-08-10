@@ -20,7 +20,7 @@ courseRouter.post("/", async (req, res) => {
 	try {
 		const course = new Course(req.body);
 		await course.save();
-		res.status(201).json(course);
+		res.sendStatus(201);
 	} catch (err: any) {
 		res.status(400).send(err.message);
 	}

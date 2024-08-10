@@ -1,17 +1,14 @@
 import { Schema, model } from "mongoose";
 
-const rubricSchema = new Schema({
-	full_mark: String,
-	half_mark: String,
-	no_mark: String,
-});
-
 const theoryQuestionSchema = new Schema({
 	question: String,
-	rubric: rubricSchema,
+	rubric: String,
+	poss_answers: [String],
+	marks: Number,
 });
 
 const courseSchema = new Schema({
+	school_name: { type: String, required: true },
 	name: { type: String, required: true },
 	course_code: { type: String, required: true },
 	objective_question_and_answer: {
