@@ -4,10 +4,10 @@ import Result from "../models/Results";
 
 const router = Router();
 
-router.get("/", async (req: Request, res: Response) => {
+router.post("/", async (req: Request, res: Response) => {
 	console.log("=================== RESULT REQUESTED ========================");
 
-	const { courseCode } = req.query;
+	const { courseCode } = req.body;
 
 	console.log(courseCode);
 

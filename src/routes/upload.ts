@@ -114,11 +114,18 @@ router.post(
 		{ name: "theory_answers", maxCount: 10 },
 	]),
 	async (req: Request, res: Response) => {
-		const { course_name, course_code, date, student_name, student_id } =
-			req.body;
+		const {
+			school_name,
+			course_name,
+			course_code,
+			date,
+			student_name,
+			student_id,
+		} = req.body;
 		const files = req.files as RequestFiles;
 
 		if (
+			!school_name ||
 			!course_name ||
 			!course_code ||
 			!date ||
@@ -153,23 +160,57 @@ router.post(
 				"===================================================================",
 			);
 
-			//Save to ExaminationAnswer collection
-			const examAnswer = new ExaminationAnswer({
-				course_name,
+			const exam = await ExaminationAnswer.findOne({
+				school_name,
 				course_code,
 				date,
-				answers: [
-					{
-						student_name,
-						student_id,
-						objective_answers: objectiveJSON,
-						theory_answers: await Promise.all(theoryTextPromises),
-					},
-				],
 			});
 
-			await examAnswer.save();
-			res.status(201).send("Answers saved successfully");
+			if (exam) {
+				// update exam answers
+				await ExaminationAnswer.updateOne(
+					{
+						school_name,
+						course_code,
+						date,
+					},
+					{
+						school_name,
+						course_name,
+						course_code,
+						date,
+						answers: [
+							...exam.answers,
+							{
+								student_name,
+								student_id,
+								objective_answers: objectiveJSON,
+								theory_answers: await Promise.all(theoryTextPromises),
+							},
+						],
+					},
+				);
+				res.status(201).send("Answers saved successfully");
+			} else {
+				//Save new to ExaminationAnswer collection
+				const examAnswer = new ExaminationAnswer({
+					school_name,
+					course_name,
+					course_code,
+					date,
+					answers: [
+						{
+							student_name,
+							student_id,
+							objective_answers: objectiveJSON,
+							theory_answers: await Promise.all(theoryTextPromises),
+						},
+					],
+				});
+
+				await examAnswer.save();
+				res.status(201).send("Answers saved successfully");
+			}
 		} catch (error) {
 			console.error(error);
 			res.status(500).send("Error saving answers");

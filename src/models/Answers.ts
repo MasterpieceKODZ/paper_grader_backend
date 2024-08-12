@@ -2,6 +2,7 @@
 import mongoose, { Document, Schema } from "mongoose";
 
 interface ExaminationAnswer extends Document {
+	school_name: string;
 	course_name: string;
 	course_code: string;
 	date: Date;
@@ -14,6 +15,7 @@ interface ExaminationAnswer extends Document {
 }
 
 const ExaminationAnswerSchema: Schema = new Schema({
+	school_name: { type: String, required: true },
 	course_name: { type: String, required: true },
 	course_code: { type: String, required: true },
 	date: { type: Date, required: true },

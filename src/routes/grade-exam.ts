@@ -41,7 +41,11 @@ router.post("/", async (req, res) => {
 
 	try {
 		const course: any = await Course.findOne({ school_name, course_code });
-		const examAnswers = await ExaminationAnswer.findOne({ course_code, date });
+		const examAnswers = await ExaminationAnswer.findOne({
+			school_name,
+			course_code,
+			date,
+		});
 
 		examAnswers?.answers.forEach(async (sItem, sIndex) => {
 			// GRADE OBJECTIVE
