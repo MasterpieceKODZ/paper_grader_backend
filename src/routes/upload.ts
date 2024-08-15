@@ -151,17 +151,9 @@ router.post(
 				preprocessImageAndExtractText(file.buffer),
 			);
 
-			console.log(
-				"========================== THEORY ANSWERS =========================",
-			);
-			console.log(await Promise.all(theoryTextPromises));
-
-			console.log(
-				"===================================================================",
-			);
-
 			const exam = await ExaminationAnswer.findOne({
 				school_name,
+				course_name,
 				course_code,
 				date,
 			});
@@ -171,6 +163,7 @@ router.post(
 				await ExaminationAnswer.updateOne(
 					{
 						school_name,
+						course_name,
 						course_code,
 						date,
 					},
@@ -179,6 +172,7 @@ router.post(
 						course_name,
 						course_code,
 						date,
+						grading_status: "in-progress",
 						answers: [
 							...exam.answers,
 							{
@@ -198,6 +192,7 @@ router.post(
 					course_name,
 					course_code,
 					date,
+					grading_status: "in-progress",
 					answers: [
 						{
 							student_name,

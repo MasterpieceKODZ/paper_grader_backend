@@ -5,8 +5,6 @@ const courseRouter = Router();
 
 // Get all courses
 courseRouter.get("/", async (req, res) => {
-	console.log("courses requested...");
-
 	try {
 		const courses = await Course.find();
 		res.json(courses);

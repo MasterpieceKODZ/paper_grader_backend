@@ -3,7 +3,7 @@ import { Schema, model } from "mongoose";
 const theoryQuestionSchema = new Schema({
 	question: String,
 	rubric: String,
-	poss_answers: [String],
+	context: [String],
 	marks: Number,
 });
 

@@ -2,7 +2,6 @@ import { Router } from "express";
 import OpenAI from "openai";
 import { Course } from "../models/Course";
 import ExaminationAnswer from "../models/Answers";
-import Results from "../models/Results";
 
 const router = Router();
 
@@ -33,13 +32,17 @@ function mapToObject<K extends string | number | symbol, V>(
 }
 
 router.post("/", async (req, res) => {
-	const { school_name, course_code, date } = req.body;
+	const { school_name, course_name, course_code, date } = req.body;
 
-	if (!school_name || !course_code || !date) {
+	console.log("================ grading started ====================");
+
+	if (!school_name || !course_name || !course_code || !date) {
 		return res.status(400).send("incomplete request body");
 	}
 
 	try {
+		res.sendStatus(201);
+
 		const course: any = await Course.findOne({ school_name, course_code });
 		const examAnswers = await ExaminationAnswer.findOne({
 			school_name,
@@ -47,7 +50,7 @@ router.post("/", async (req, res) => {
 			date,
 		});
 
-		examAnswers?.answers.forEach(async (sItem, sIndex) => {
+		examAnswers?.answers.forEach(async (sItem, sIndex, sArray) => {
 			// GRADE OBJECTIVE
 
 			const studentObjectiveResult = countMatchingValues(
@@ -58,6 +61,7 @@ router.post("/", async (req, res) => {
 			// GRADE THEORY
 
 			let theoryGrade = 0;
+			let theoryGradeAndSummary: any[] = [];
 
 			for (let i = 0; i < sItem.theory_answers.length; i++) {
 				const gptPrompt = `You are grade bot, an examination grading expert at ${school_name}, specialized in grading the answers of students that took the  ${
@@ -98,7 +102,7 @@ Student’s Answer: <student-answer>${sItem.theory_answers[i]}</student-answer>
 
 Context: <context>${(
 					mapToObject(course.theory_question_and_answer as any) as any
-				)[`${i + 1}`].poss_answers
+				)[`${i + 1}`].context
 					.map((psAnsIt: string) => `- ${psAnsIt}\n`)
 					.join(
 						"\n\n--------------------------------------------------------------------------------------\n\n",
@@ -120,33 +124,87 @@ Context: <context>${(
 				});
 
 				if (completion.choices.length > 0) {
-					theoryGrade =
-						theoryGrade +
-						JSON.parse(
-							completion.choices[0].message.content
-								.split("")
-								.filter(
-									(it: string, idx: number, arr: []) =>
-										idx > 6 && idx < arr.length - 4,
-								)
-								.join(""),
-						).markAssigned;
+					const gradeResultJson = JSON.parse(
+						completion.choices[0].message.content
+							.split("")
+							.filter(
+								(it: string, idx: number, arr: []) =>
+									idx > 6 && idx < arr.length - 4,
+							)
+							.join(""),
+					);
+
+					theoryGradeAndSummary = [
+						...theoryGradeAndSummary,
+						{
+							question: (
+								mapToObject(course.theory_question_and_answer as any) as any
+							)[`${i + 1}`].question,
+							answer: sItem.theory_answers[i],
+							mark: gradeResultJson.markAssigned,
+							reason: gradeResultJson.reason,
+						},
+					];
+					theoryGrade = theoryGrade + gradeResultJson.markAssigned;
 				}
 			}
 
-			// upload result to database
-			await Results.create({
-				studentName: sItem.student_name,
-				studentId: sItem.student_id,
-				objectiveScore: studentObjectiveResult,
-				theoryScore: theoryGrade,
-				subject: course.name,
-				courseCode: course_code,
+			// //Remove the  answer from the Exam document
+			await ExaminationAnswer.updateOne(
+				{ school_name, course_name, course_code, date },
+				{
+					$pull: {
+						answers: { student_id: sItem.student_id },
+					},
+				},
+			);
+
+			const examWithoutGradedAnswer: any = await ExaminationAnswer.findOne({
+				school_name,
+				course_name,
+				course_code,
 				date,
 			});
-		});
 
-		res.send("good");
+			if (sIndex == sArray.length - 1) {
+				await ExaminationAnswer.updateOne(
+					{ school_name, course_name, course_code, date },
+					{
+						grading_status: "done",
+						answers: [
+							...examWithoutGradedAnswer?.answers,
+							{
+								student_name: sItem.student_name,
+								student_id: sItem.student_id,
+								objective_answers: sItem.objective_answers,
+								objective_mark: studentObjectiveResult,
+								theory_answers: sItem.theory_answers,
+								theory_grade_summary: [...theoryGradeAndSummary],
+								theory_grade_mark: theoryGrade,
+							},
+						],
+					},
+				);
+			} else {
+				await ExaminationAnswer.updateOne(
+					{ school_name, course_name, course_code, date },
+					{
+						answers: [
+							...examWithoutGradedAnswer?.answers,
+							{
+								student_name: sItem.student_name,
+								student_id: sItem.student_id,
+								objective_answers: sItem.objective_answers,
+								objective_mark: studentObjectiveResult,
+								theory_answers: sItem.theory_answers,
+								theory_grade_summary: [...theoryGradeAndSummary],
+								theory_grade_mark: theoryGrade,
+							},
+						],
+					},
+				);
+			}
+		});
 	} catch (error) {
 		return res.status(500).send("SERVER ERROR");
 	}
