@@ -4,7 +4,7 @@ import { Router, Request, Response } from "express";
 import multer from "multer";
 import { v1 as vision } from "@google-cloud/vision";
 import Jimp from "jimp";
-import ExaminationAnswer from "../models/Answers";
+import ExaminationData from "../models/Answers";
 
 type MulterFile = {
 	buffer: Buffer;
@@ -26,8 +26,10 @@ async function preprocessImageAndExtractText(buffer: Buffer): Promise<String> {
 		.invert() // Invert colors to enhance text
 		.normalize(); // Normalize the image
 
-	const keyFilename = `${__dirname}../../../project-dissertation-f89ea6389b60[1].json`;
-	const client = new vision.ImageAnnotatorClient({ keyFilename });
+	const GoogleVisionAPIKeyFilename = `${__dirname}../../../project-dissertation-f89ea6389b60[1].json`;
+	const client = new vision.ImageAnnotatorClient({
+		keyFilename: GoogleVisionAPIKeyFilename,
+	});
 
 	const [result] = await client.documentTextDetection({
 		image: { content: await image.getBufferAsync(Jimp.MIME_PNG) },
@@ -42,7 +44,7 @@ async function preprocessImageAndExtractText(buffer: Buffer): Promise<String> {
 async function objectiveStringToJSON(imageText: String) {
 	const imageTextNoSpace = imageText.split(" ").join("").split("\n").join("");
 
-	// ------------------------------  seperate numbers from letters
+	// ---------------  seperate numbers from letters --------------------
 	const questionNumbers = imageTextNoSpace
 		.split("")
 		.filter((itm) => !Number.isNaN(parseInt(itm)))
@@ -111,21 +113,22 @@ router.post(
 	"/",
 	upload.fields([
 		{ name: "objective_answers", maxCount: 1 },
-		{ name: "theory_answers", maxCount: 10 },
+		{ name: "theory_answers", maxCount: 20 },
 	]),
 	async (req: Request, res: Response) => {
 		const {
-			school_name,
+			school_id,
 			course_name,
 			course_code,
 			date,
 			student_name,
 			student_id,
 		} = req.body;
+
 		const files = req.files as RequestFiles;
 
 		if (
-			!school_name ||
+			!school_id ||
 			!course_name ||
 			!course_code ||
 			!date ||
@@ -151,30 +154,30 @@ router.post(
 				preprocessImageAndExtractText(file.buffer),
 			);
 
-			const exam = await ExaminationAnswer.findOne({
-				school_name,
+			const exam = await ExaminationData.findOne({
+				school_id,
 				course_name,
 				course_code,
 				date,
 			});
 
 			if (exam) {
-				// update exam answers
-				await ExaminationAnswer.updateOne(
+				// update exam data
+				await ExaminationData.updateOne(
 					{
-						school_name,
+						school_id,
 						course_name,
 						course_code,
 						date,
 					},
 					{
-						school_name,
+						school_id,
 						course_name,
 						course_code,
 						date,
 						grading_status: "in-progress",
-						answers: [
-							...exam.answers,
+						candidates: [
+							...exam.candidates,
 							{
 								student_name,
 								student_id,
@@ -186,14 +189,14 @@ router.post(
 				);
 				res.status(201).send("Answers saved successfully");
 			} else {
-				//Save new to ExaminationAnswer collection
-				const examAnswer = new ExaminationAnswer({
-					school_name,
+				//Save new exam data to ExaminationData collection
+				const examAnswer = new ExaminationData({
+					school_id,
 					course_name,
 					course_code,
 					date,
 					grading_status: "in-progress",
-					answers: [
+					candidates: [
 						{
 							student_name,
 							student_id,
@@ -208,7 +211,7 @@ router.post(
 			}
 		} catch (error) {
 			console.error(error);
-			res.status(500).send("Error saving answers");
+			res.status(500).send("Error saving e");
 		}
 	},
 );

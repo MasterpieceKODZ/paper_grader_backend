@@ -4,11 +4,11 @@ const theoryQuestionSchema = new Schema({
 	question: String,
 	rubric: String,
 	context: [String],
-	marks: Number,
+	mark: Number,
 });
 
 const courseSchema = new Schema({
-	school_name: { type: String, required: true },
+	school_id: { type: String, required: true },
 	name: { type: String, required: true },
 	course_code: { type: String, required: true },
 	objective_question_and_answer: {
