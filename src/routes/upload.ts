@@ -131,23 +131,35 @@ router.post(
 			!course_code ||
 			!date ||
 			!student_name ||
-			!student_id ||
-			!files?.objective_answers ||
-			!files?.theory_answers
+			!student_id
 		) {
 			return res.status(400).send("All fields are required");
 		}
 
 		try {
-			const results = await preprocessImageAndExtractText(
-				files.objective_answers[0].buffer,
-			);
+			let objectiveJSON;
 
-			const objectiveJSON = await objectiveStringToJSON(results);
+			if (!files.objective_answers) {
+				objectiveJSON = {};
+			} else {
+				const results = await preprocessImageAndExtractText(
+					files.objective_answers[0].buffer,
+				);
 
-			const theoryTextPromises = files.theory_answers.map((file) =>
-				preprocessImageAndExtractText(file.buffer),
-			);
+				objectiveJSON = await objectiveStringToJSON(results);
+			}
+
+			let theoryAnswers: String[];
+
+			if (!files.theory_answers) {
+				theoryAnswers = [];
+			} else {
+				theoryAnswers = await Promise.all(
+					files.theory_answers.map((file) =>
+						preprocessImageAndExtractText(file.buffer),
+					),
+				);
+			}
 
 			const exam = await ExaminationData.findOne({
 				school_id,
@@ -176,7 +188,7 @@ router.post(
 								student_name,
 								student_id,
 								objective_answers: objectiveJSON,
-								theory_answers: await Promise.all(theoryTextPromises),
+								theory_answers: theoryAnswers,
 							},
 						],
 					},
@@ -194,7 +206,7 @@ router.post(
 							student_name,
 							student_id,
 							objective_answers: objectiveJSON,
-							theory_answers: await Promise.all(theoryTextPromises),
+							theory_answers: theoryAnswers,
 						},
 					],
 				});

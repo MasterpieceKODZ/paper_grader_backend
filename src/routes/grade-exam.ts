@@ -11,13 +11,12 @@ router.post("/", async (req, res) => {
 	}
 
 	res.sendStatus(201);
-
-	try {
-		gradeStudentsAnswersAsync(school_id, course_name, course_code, date);
-	} catch (error) {
-		console.log("grade exam error");
-		console.log(error);
-	}
+	gradeStudentsAnswersAsync(school_id, course_name, course_code, date).catch(
+		(error) => {
+			console.log("grade students answer error");
+			console.log(error);
+		},
+	);
 });
 
 export default router;

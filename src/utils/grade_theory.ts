@@ -8,6 +8,12 @@ async function gradeTheoryAnswers(
 	school_name: string,
 	course: any,
 ) {
+	if (candidateData.theory_answers.length < 1) {
+		return {
+			theoryScore: 0,
+			theoryGradeAndSummary: { question: "", answer: "", mark: "", reason: "" },
+		};
+	}
 	let theoryScore = 0;
 	let theoryGradeAndSummary = await Promise.all(
 		candidateData.theory_answers.map(async (ansItem, ansIndex) => {

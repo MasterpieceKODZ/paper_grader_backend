@@ -4,11 +4,18 @@ import ExaminationData from "../models/Answers";
 import convertMapTypeToObjectLiteral from "./convert_map_to_object";
 import gradeTheoryAnswers from "./grade_theory";
 
-function gradeObjectiveAnswers(obj1: any, obj2: any) {
+function gradeObjectiveAnswers(course_objs: any, student_answer_obj: any) {
+	if (Object.keys(course_objs).length < 1) {
+		return 0;
+	}
+
 	let correctAnswersCount = 0;
 
-	for (let key in obj1) {
-		if (obj2.hasOwnProperty(key) && obj1[key] === obj2[key]) {
+	for (let key in course_objs) {
+		if (
+			student_answer_obj.hasOwnProperty(key) &&
+			course_objs[key] === student_answer_obj[key]
+		) {
 			correctAnswersCount++;
 		}
 	}
