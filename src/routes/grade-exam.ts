@@ -1,5 +1,5 @@
 import { Router } from "express";
-import gradeExamCandidates from "../utils/grade_candidates";
+import gradeStudentsAnswersAsync from "../utils/grade_students";
 
 const router = Router();
 
@@ -13,7 +13,7 @@ router.post("/", async (req, res) => {
 	res.sendStatus(201);
 
 	try {
-		gradeExamCandidates(school_id, course_name, course_code, date);
+		gradeStudentsAnswersAsync(school_id, course_name, course_code, date);
 	} catch (error) {
 		console.log("grade exam error");
 		console.log(error);

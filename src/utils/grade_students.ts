@@ -16,7 +16,7 @@ function gradeObjectiveAnswers(obj1: any, obj2: any) {
 	return correctAnswersCount;
 }
 
-async function gradeExamCandidates(
+async function gradeStudentsAnswersAsync(
 	school_id: string,
 	course_name: string,
 	course_code: string,
@@ -66,4 +66,4 @@ async function gradeExamCandidates(
 	);
 }
 
-export default gradeExamCandidates;
+export default gradeStudentsAnswersAsync;

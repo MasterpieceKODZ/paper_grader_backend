@@ -3,16 +3,6 @@ import { Course } from "../models/Course";
 
 const courseRouter = Router();
 
-// Get all courses
-courseRouter.get("/", async (req, res) => {
-	try {
-		const courses = await Course.find();
-		res.json(courses);
-	} catch (err: any) {
-		res.status(500).send(err.message);
-	}
-});
-
 // Add a new course
 courseRouter.post("/", async (req, res) => {
 	try {
@@ -21,6 +11,22 @@ courseRouter.post("/", async (req, res) => {
 		res.sendStatus(201);
 	} catch (err: any) {
 		res.status(400).send(err.message);
+	}
+});
+
+// Get all courses for a school
+courseRouter.post("/get-all-by-school", async (req, res) => {
+	const { school_id } = req.body;
+
+	if (!school_id) {
+		return res.sendStatus(400);
+	}
+
+	try {
+		const courses = await Course.find({ school_id });
+		res.json(courses);
+	} catch (err: any) {
+		res.status(500).send(err.message);
 	}
 });
 
