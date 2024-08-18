@@ -1,4 +1,3 @@
-// src/routes/results.ts
 import { Router, Request, Response } from "express";
 import ExaminationData from "../models/Answers";
 

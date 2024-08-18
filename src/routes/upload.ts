@@ -1,5 +1,3 @@
-//import { Course } from "../models/Course";
-
 import { Router, Request, Response } from "express";
 import multer from "multer";
 import { v1 as vision } from "@google-cloud/vision";
@@ -141,14 +139,11 @@ router.post(
 		}
 
 		try {
-			// Extract objective text from image
 			const results = await preprocessImageAndExtractText(
 				files.objective_answers[0].buffer,
 			);
 
 			const objectiveJSON = await objectiveStringToJSON(results);
-
-			// //Extract text from theory answers
 
 			const theoryTextPromises = files.theory_answers.map((file) =>
 				preprocessImageAndExtractText(file.buffer),
@@ -162,7 +157,6 @@ router.post(
 			});
 
 			if (exam) {
-				// update exam data
 				await ExaminationData.updateOne(
 					{
 						school_id,
@@ -189,7 +183,6 @@ router.post(
 				);
 				res.status(201).send("Answers saved successfully");
 			} else {
-				//Save new exam data to ExaminationData collection
 				const examAnswer = new ExaminationData({
 					school_id,
 					course_name,

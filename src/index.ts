@@ -1,4 +1,3 @@
-// src/index.ts
 import connectDB from "./db";
 import express, { Application } from "express";
 import cors from "cors";
@@ -15,7 +14,6 @@ const PORT = process.env.PORT || 4000;
 app.use(cors());
 app.use(express.json());
 
-// Connect to MongoDB
 connectDB();
 
 app.use("/upload-answers", uploadRouter);

@@ -3,7 +3,6 @@ import ExamData from "../models/Answers";
 
 const examAnswerRouter = Router();
 
-// Get exam students by course and exam date
 examAnswerRouter.post("/", async (req, res) => {
 	const { school_id, course_code, date } = req.body;
 
