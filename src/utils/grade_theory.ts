@@ -2,6 +2,7 @@ import OpenAI from "openai";
 import convertMapTypeToObjectLiteral from "./convert_map_to_object";
 import Candidate from "./types/Candidate";
 import getGPTPrompt from "./getGPTPrompt";
+import processGPTResponse from "./process_GPT_response";
 
 async function gradeTheoryAnswers(
 	candidateData: Candidate,
@@ -15,7 +16,7 @@ async function gradeTheoryAnswers(
 		};
 	}
 	let theoryScore = 0;
-	let theoryGradeAndSummary = await Promise.all(
+	const theoryGradeAndSummary = await Promise.all(
 		candidateData.theory_answers.map(async (ansItem, ansIndex) => {
 			const gptPrompt = getGPTPrompt(
 				school_name,
@@ -55,32 +56,18 @@ async function gradeTheoryAnswers(
 				temperature: 0.5,
 			});
 
-			if (completion.choices.length > 0) {
-				const gradeResultJson = JSON.parse(
-					completion.choices[0].message.content
-						.split("")
-						.filter(
-							(it: string, idx: number, arr: []) =>
-								idx > 6 && idx < arr.length - 4,
-						)
-						.join(""),
-				);
+			const gradeSummary = processGPTResponse(
+				completion,
+				course,
+				candidateData,
+				ansIndex,
+			);
 
-				theoryScore = theoryScore + gradeResultJson.markAssigned;
+			theoryScore = gradeSummary
+				? theoryScore + gradeSummary.mark
+				: theoryScore;
 
-				return {
-					question: (
-						convertMapTypeToObjectLiteral(
-							course.theory_question_and_answer as any,
-						) as any
-					)[`${ansIndex + 1}`].question,
-					answer: candidateData.theory_answers[ansIndex],
-					mark: gradeResultJson.markAssigned,
-					reason: gradeResultJson.reason,
-				};
-			}
-
-			return null;
+			return gradeSummary;
 		}),
 	);
 
