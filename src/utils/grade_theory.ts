@@ -40,7 +40,7 @@ async function gradeTheoryAnswers(
 		};
 	}
 
-	return candidateData.theory_answers.reduce(async (accPromise: any, studentAnswer: string, index) => {
+	return candidateData.theory_answers.reduce(async (accPromise: any, studentAnswer: string, index: number) => {
 		const acc = await accPromise;
 		const courseDetails = ( convertMapTypeToObjectLiteral(course.theory_question_and_answer as any,) as any)[`${index + 1}`];
 		const totalScoreForQuestion = courseDetails.mark
