@@ -2,7 +2,7 @@ import OpenAI from "openai";
 import { getTheoryAnswersToArrayGPTprompt } from "./getGPTPrompts";
 
 const buildResponse = (gptResponse: any) => {
-	return Object.values(
+	const answersArray = Object.values(
 		JSON.parse(
 			gptResponse.choices[0].message.content
 				.split("")
@@ -12,6 +12,8 @@ const buildResponse = (gptResponse: any) => {
 				.join(""),
 		),
 	);
+
+	return answersArray;
 };
 
 async function groupEssayAnswers(
@@ -32,7 +34,11 @@ async function groupEssayAnswers(
 		temperature: 0.5,
 	});
 
-	return buildResponse(chatGptResponse);
+	const buildRes = buildResponse(chatGptResponse);
+	console.log("build response ");
+	console.log(buildRes);
+
+	return buildRes;
 }
 
 export default groupEssayAnswers;

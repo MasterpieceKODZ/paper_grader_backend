@@ -32,7 +32,7 @@ async function gradeTheoryAnswers(
 	school_name: string,
 	course: any,
 ) {
-	if (candidateData.theory_answers.length) {
+	if (!candidateData.theory_answers) {
 		return {
 			theoryScore: 0,
 			theoryGradeAndSummary: { question: "", answer: "", mark: "", reason: "" },
@@ -44,6 +44,9 @@ async function gradeTheoryAnswers(
 		school_name,
 		course.name,
 	);
+
+	console.log("groupEssayAnswers Result ");
+	console.log(answers);
 
 	return answers.reduce(
 		async (accPromise: any, studentAnswer: string, index: number) => {
