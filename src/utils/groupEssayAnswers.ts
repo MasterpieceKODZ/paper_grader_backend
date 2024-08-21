@@ -1,7 +1,7 @@
 import OpenAI from "openai";
 import { getTheoryAnswersToArrayGPTprompt } from "./getGPTPrompts";
 
-const processGPTResponseToArray = (gptResponse: any) => {
+const buildResponse = (gptResponse: any) => {
 	return Object.values(
 		JSON.parse(
 			gptResponse.choices[0].message.content
@@ -14,7 +14,7 @@ const processGPTResponseToArray = (gptResponse: any) => {
 	);
 };
 
-async function convertTheoryAnswersStringToArray(
+async function groupEssayAnswers(
 	answersString: string,
 	school_name: string,
 	course_name: string,
@@ -32,7 +32,7 @@ async function convertTheoryAnswersStringToArray(
 		temperature: 0.5,
 	});
 
-	return processGPTResponseToArray(chatGptResponse);
+	return buildResponse(chatGptResponse);
 }
 
-export default convertTheoryAnswersStringToArray;
+export default groupEssayAnswers;

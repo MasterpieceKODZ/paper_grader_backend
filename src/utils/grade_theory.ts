@@ -1,7 +1,7 @@
 import OpenAI from "openai";
 import convertMapTypeToObjectLiteral from "./convert_map_to_object";
 import Candidate from "./types/Candidate";
-import convertTheoryAnswersStringToArray from "./groupEssayAnswers";
+import groupEssayAnswers from "./groupEssayAnswers";
 import { getGradingPrompt } from "./getGPTPrompts";
 
 const getGradeResult = (chatGptResponse: any) => {
@@ -39,7 +39,7 @@ async function gradeTheoryAnswers(
 		};
 	}
 
-	const answers: any = await convertTheoryAnswersStringToArray(
+	const answers: any = await groupEssayAnswers(
 		candidateData.theory_answers,
 		school_name,
 		course.name,
