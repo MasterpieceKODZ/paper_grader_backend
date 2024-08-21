@@ -2,6 +2,7 @@ import OpenAI from "openai";
 import convertMapTypeToObjectLiteral from "./convert_map_to_object";
 import Candidate from "./types/Candidate";
 import getGPTPrompt from "./getGPTPrompt";
+import convertTheoryAnswersStringToArray from "./theory_answers_string_to_array";
 
 const getGradeResult = (chatGptResponse: any) => {
 	if (chatGptResponse.choices.length == 0) {
@@ -31,14 +32,18 @@ async function gradeTheoryAnswers(
 	school_name: string,
 	course: any,
 ) {
-	if (candidateData.theory_answers.length < 1) {
+	if (candidateData.theory_answers.length) {
 		return {
 			theoryScore: 0,
 			theoryGradeAndSummary: { question: "", answer: "", mark: "", reason: "" },
 		};
 	}
 
-	return candidateData.theory_answers.reduce(
+	const answers: any = await convertTheoryAnswersStringToArray(
+		candidateData.theory_answers,
+	);
+
+	return answers.reduce(
 		async (accPromise: any, studentAnswer: string, index: number) => {
 			let acc = await accPromise;
 			const courseDetails = (

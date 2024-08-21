@@ -11,7 +11,7 @@ interface ExaminationData extends Document {
 		student_id: string;
 		objective_answers: {};
 		objective_score: number;
-		theory_answers: [];
+		theory_answers: string;
 		theory_grade_summary: [];
 		theory_score: number;
 	}[];
@@ -29,7 +29,7 @@ const ExaminationDataSchema: Schema = new Schema({
 			student_id: { type: String, required: true },
 			objective_answers: { type: Map, of: String, required: true },
 			objective_score: { type: Number, required: false },
-			theory_answers: { type: [], required: true },
+			theory_answers: { type: String, required: true },
 			theory_grade_summary: { type: [], required: false },
 			theory_score: { type: Number, required: false },
 		},

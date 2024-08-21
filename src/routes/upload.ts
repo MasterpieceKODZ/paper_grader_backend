@@ -149,16 +149,18 @@ router.post(
 				objectiveJSON = await objectiveStringToJSON(results);
 			}
 
-			let theoryAnswers: String[];
+			let theoryAnswers: String;
 
 			if (!files.theory_answers) {
-				theoryAnswers = [];
+				theoryAnswers = "";
 			} else {
-				theoryAnswers = await Promise.all(
-					files.theory_answers.map((file) =>
-						preprocessImageAndExtractText(file.buffer),
-					),
-				);
+				theoryAnswers = (
+					await Promise.all(
+						files.theory_answers.map((file) =>
+							preprocessImageAndExtractText(file.buffer),
+						),
+					)
+				).join("");
 			}
 
 			const exam = await ExaminationData.findOne({

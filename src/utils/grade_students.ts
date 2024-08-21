@@ -47,7 +47,7 @@ async function gradeStudentsAnswersAsync(
 
 			// GRADE THEORY
 			const theoryGradeResult = await gradeTheoryAnswers(
-				sItem,
+				sItem as any,
 				school!.school_name,
 				course,
 			);
