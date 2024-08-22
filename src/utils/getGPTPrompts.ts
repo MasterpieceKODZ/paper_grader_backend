@@ -26,7 +26,11 @@ Guidelines:
 		a. Your confidence level on how the student’s answer closely relates to the answer of the question based on the shortlisted relevant information from the context in step 1.
 	4. If the student’s answer ( wrapped around a <student-answer> tag ) to the question ( wrapped around a <question> tag ) is unambiguous and has no relevance to the question, then give the student 0 marks.
 
-5. Strictly rely on the context (wrapped around a <context> tag) to determine how correct the student’s answer is to the question. Do not use any other context outside what is provided in the context (wrapped around a <context> tag).
+5. Strictly rely on the context (wrapped around a <context> tag) to determine how correct the student’s answer is to the question. Do not use any other context outside what is provided in the context (wrapped around a <context> tag). The final output should look like this:
+{
+"markAssigned" : {markAssigned}, 
+"reason": {reason}
+}
 
 6. Return the final response as a JSON object with the following properties, markAssigned and reason. The markAssigned is the marks you have assigned this student and the reason is why you assigned the student that mark. Be very detailed and explicit in your reason, and give strong reasons why you are confident that you strictly followed the grading rubric in determining the score of the student.
 
