@@ -45,9 +45,6 @@ async function gradeTheoryAnswers(
 		course.name,
 	);
 
-	console.log("groupEssayAnswers Result ");
-	console.log(answers);
-
 	return answers.reduce(
 		async (accPromise: any, studentAnswer: string, index: number) => {
 			let acc = await accPromise;

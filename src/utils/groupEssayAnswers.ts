@@ -35,8 +35,6 @@ async function groupEssayAnswers(
 	});
 
 	const buildRes = buildResponse(chatGptResponse);
-	console.log("build response ");
-	console.log(buildRes);
 
 	return buildRes;
 }
