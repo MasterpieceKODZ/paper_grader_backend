@@ -13,12 +13,7 @@ const getGradeResult = (chatGptResponse: any) => {
 	}
 
 	const gradeResultJson = JSON.parse(
-		chatGptResponse.choices[0].message.content
-			.split("")
-			.filter(
-				(it: string, idx: number, arr: []) => idx > 6 && idx < arr.length - 4,
-			)
-			.join(""),
+		chatGptResponse.choices[0].message.content,
 	);
 
 	return {

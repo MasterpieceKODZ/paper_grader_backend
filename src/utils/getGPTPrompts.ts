@@ -43,9 +43,6 @@ Context: <context>${context}</context>
 
 <grading-rubric>${rubric}</grading-rubric>`;
 
-	console.log("grade answers prompt");
-	console.log(prompt);
-
 	return prompt;
 }
 
