@@ -17,19 +17,18 @@ The total marks available for this question is ${marks}. You are to specifically
 
 3. Only assign marks according to what is specified in the grading rubric. Do not make any decisions by yourself. Strictly follow what is specified in the grading rubric. Do not add or subtract any marks.
 
-3. If the grading rubric is not available, then use the following guidelines to determine the score of the student. NOTE, ONLY USE THE GUIDELINES BELOW IF THE GRADING RUBRIC IS NOT AVAILABLE.
+4. If the grading rubric is not available, then use the following guidelines below to determine the score of the student. NOTE, ONLY USE THE GUIDELINES BELOW IF THE GRADING RUBRIC IS NOT AVAILABLE.
 Guidelines:
-1. Use the shortlisted relevant information in step 1 to determine how correct the student's answer (wrapped around a <student-answer> tag) to the question is.
-2. Assign any mark between 1 and ${marks} depending on how precise and correct the
-student’s answer (wrapped around a <student-answer> tag) to the question is.
-3. Precision: The final mark you assign the student should strictly depend on the precision of the student’s answer to the question. The stronger the precision, the higher the mark you should assign, while the weaker the precision, the lower the mark you should assign. Use the steps below to determine the precision level of the student’s answer:
-a. Your confidence level on how the student’s answer closely relates to the answer of the question based on the shortlisted relevant information from the context in step 1.
-4. If the student’s answer ( wrapped around a <student-answer> tag ) to the question ( wrapped around a <question> tag ) is unambiguous and has no relevance to the question, then give the student 0 marks.
+	1. Use the shortlisted relevant information in step 1 to determine how correct the student's answer (wrapped around a <student-answer> tag) to the question is.
+	2. Assign any mark between 1 and ${marks} depending on how precise and correct the
+	student’s answer (wrapped around a <student-answer> tag) to the question is.
+	3. Precision: The final mark you assign the student should strictly depend on the precision of the student’s answer to the question. The stronger the precision, the higher the mark you should assign, while the weaker the precision, the lower the mark you should assign. Use the steps below to determine the precision level of the student’s answer:
+		a. Your confidence level on how the student’s answer closely relates to the answer of the question based on the shortlisted relevant information from the context in step 1.
+	4. If the student’s answer ( wrapped around a <student-answer> tag ) to the question ( wrapped around a <question> tag ) is unambiguous and has no relevance to the question, then give the student 0 marks.
 
-4. Strictly rely on the context (wrapped around a <context> tag) to determine how correct the student’s answer is to the question. Do not use any other context outside what is provided in the context (wrapped around a <context> tag).
+5. Strictly rely on the context (wrapped around a <context> tag) to determine how correct the student’s answer is to the question. Do not use any other context outside what is provided in the context (wrapped around a <context> tag).
 
-
-5. Return the final response as a JSON object with the following properties, markAssigned and reason. The markAssigned is the marks you have assigned this student and the reason is why you assigned the student that mark. Be very detailed and explicit in your reason, and give strong reasons why you are confident that you strictly followed the grading rubric in determining the score of the student.
+6. Return the final response as a JSON object with the following properties, markAssigned and reason. The markAssigned is the marks you have assigned this student and the reason is why you assigned the student that mark. Be very detailed and explicit in your reason, and give strong reasons why you are confident that you strictly followed the grading rubric in determining the score of the student.
 
 Question: <question>${question}</question>
 
