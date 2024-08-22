@@ -15,7 +15,7 @@ The total marks available for this question is ${marks}. You are to specifically
 
 2. If the grading rubric (wrapped around a <grading-rubric> tag ) is available, strictly use what is defined in the grading rubric to determine the score of the student. Make sure the score of the student is totally dependent on what is specified in the grading rubric (wrapped around a <grading-rubric> tag ).
 
-3. Only assign marks according to what is specified in the grading rubric. Do not make any decisions by yourself. Strictly follow what is specified in the grading rubric. Do not add or subtract any marks.
+3. ONLY ASSIGN MARKS ACCORDING TO WHAT IS SPECIFIED IN THE GRADING RUBRIC. DO NOT MAKE ANY DECISIONS BY YOURSELF. STRICTLY FOLLOW WHAT IS SPECIFIED IN THE GRADING RUBRIC. DO NOT ADD OR SUBTRACT ANY MARKS.
 
 4. If the grading rubric is not available, then use the following guidelines below to determine the score of the student. NOTE, ONLY USE THE GUIDELINES BELOW IF THE GRADING RUBRIC IS NOT AVAILABLE.
 Guidelines:
@@ -33,6 +33,8 @@ Guidelines:
 }
 
 6. Return the final response as a JSON object with the following properties, markAssigned and reason. The markAssigned is the marks you have assigned this student and the reason is why you assigned the student that mark. Be very detailed and explicit in your reason, and give strong reasons why you are confident that you strictly followed the grading rubric in determining the score of the student.
+
+7. MAKE SURE YOU ARE NOT ADDING OR SUBTRACTING ANY MARKS TO THE FINAL SCORE. THE FINAL SCORE RETURNED MUST BE ABSOLUTELY CORRECT. DOUBLE CHECK THE FINAL JSON RESPONSE METICULOUSLY AND CORRECT ANY INACCURACIES. MAKE SURE YOUR REASON FOR ASSIGNING THE SCORE (AS SPECIFIED IN THE reason PROPERTY) TALLIES WITH THE markAssigned VALUE. DON’T RETURN A FINAL RESPONSE IF YOU HAVE NOT DOUBLE CHECKED AND MADE SURE THE markAssigned IS ABSOLUTELY CORRECT.
 
 Question: <question>${question}</question>
 
