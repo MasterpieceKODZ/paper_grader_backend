@@ -1,3 +1,4 @@
+require("dotenv").config();
 import connectDB from "./db";
 import express, { Application } from "express";
 import cors from "cors";

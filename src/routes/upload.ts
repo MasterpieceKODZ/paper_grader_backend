@@ -16,6 +16,14 @@ type RequestFiles = {
 	theory_answers?: MulterFile[];
 };
 
+function base64ToJson<T>(base64: string): T {
+	const jsonString = atob(base64);
+
+	const jsonObject: T = JSON.parse(jsonString);
+
+	return jsonObject;
+}
+
 async function preprocessImageAndExtractText(buffer: Buffer): Promise<String> {
 	const image = await Jimp.read(buffer);
 	image
@@ -24,9 +32,9 @@ async function preprocessImageAndExtractText(buffer: Buffer): Promise<String> {
 		.invert() // Invert colors to enhance text
 		.normalize(); // Normalize the image
 
-	const GoogleVisionAPIKeyFilename = `${__dirname}../../../project-dissertation-f89ea6389b60[1].json`;
+	//const GoogleVisionAPIKeyFilename = `${__dirname}../../../project-dissertation-f89ea6389b60[1].json`;
 	const client = new vision.ImageAnnotatorClient({
-		keyFilename: GoogleVisionAPIKeyFilename,
+		credentials: base64ToJson(process.env.GOOGLE_VISION_KEY as string),
 	});
 
 	const [result] = await client.documentTextDetection({
