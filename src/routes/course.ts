@@ -1,5 +1,6 @@
 import { Router } from "express";
 import { Course } from "../models/Course";
+import Examination from "../models/Examination";
 
 const courseRouter = Router();
 
@@ -9,6 +10,28 @@ courseRouter.post("/", async (req, res) => {
 		const course = new Course(req.body);
 		await course.save();
 		res.sendStatus(201);
+	} catch (err: any) {
+		res.status(400).send(err.message);
+	}
+});
+
+// fetch course exams
+courseRouter.post("/exams", async (req, res) => {
+	const { school_id, course_code } = req.body;
+
+	if (!school_id || !course_code) {
+		return res.sendStatus(400);
+	}
+
+	try {
+		const exams = await Examination.find({ school_id, course_code });
+		const examsShort = exams.map((item) => ({
+			course_name: item.course_name,
+			course_code: item.course_code,
+			date: item.date,
+		}));
+
+		res.json(examsShort);
 	} catch (err: any) {
 		res.status(400).send(err.message);
 	}

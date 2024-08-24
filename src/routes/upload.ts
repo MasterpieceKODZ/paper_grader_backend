@@ -2,7 +2,7 @@ import { Router, Request, Response } from "express";
 import multer from "multer";
 import { v1 as vision } from "@google-cloud/vision";
 import Jimp from "jimp";
-import ExaminationData from "../models/Examination";
+import Examination from "../models/Examination";
 
 type MulterFile = {
 	buffer: Buffer;
@@ -171,7 +171,7 @@ router.post(
 				).join("");
 			}
 
-			const exam = await ExaminationData.findOne({
+			const exam = await Examination.findOne({
 				school_id,
 				course_name,
 				course_code,
@@ -179,7 +179,7 @@ router.post(
 			});
 
 			if (exam) {
-				await ExaminationData.updateOne(
+				await Examination.updateOne(
 					{
 						school_id,
 						course_name,
@@ -205,7 +205,7 @@ router.post(
 				);
 				res.status(201).send("Answers saved successfully");
 			} else {
-				const examAnswer = new ExaminationData({
+				const examAnswer = new Examination({
 					school_id,
 					course_name,
 					course_code,

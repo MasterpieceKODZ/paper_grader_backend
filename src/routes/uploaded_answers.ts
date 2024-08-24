@@ -1,12 +1,12 @@
 import { Router } from "express";
 import ExamData from "../models/Examination";
 
-const examAnswerRouter = Router();
+const uploadedExamAnswersRouter = Router();
 
-examAnswerRouter.post("/", async (req, res) => {
+uploadedExamAnswersRouter.post("/", async (req, res) => {
 	const { school_id, course_code, date } = req.body;
 
-	if (!school_id || !course_code || !date) {
+	if (!school_id || !course_code) {
 		return res.sendStatus(400);
 	}
 
@@ -19,4 +19,4 @@ examAnswerRouter.post("/", async (req, res) => {
 	}
 });
 
-export default examAnswerRouter;
+export default uploadedExamAnswersRouter;

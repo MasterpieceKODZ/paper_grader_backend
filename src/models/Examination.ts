@@ -39,7 +39,4 @@ const ExaminationSchema: Schema = new Schema(
 	{ collection: "examination" },
 );
 
-export default mongoose.model<Examination>(
-	"ExaminationData",
-	ExaminationSchema,
-);
+export default mongoose.model<Examination>("Examination", ExaminationSchema);

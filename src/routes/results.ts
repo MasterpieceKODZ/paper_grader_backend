@@ -1,12 +1,12 @@
 import { Router, Request, Response } from "express";
-import ExaminationData from "../models/Examination";
+import Examination from "../models/Examination";
 
 const router = Router();
 
 router.post("/", async (req: Request, res: Response) => {
-	const { schoolId, courseCode } = req.body;
+	const { schoolId, courseCode, date } = req.body;
 
-	if (!schoolId || !courseCode) {
+	if (!schoolId || !courseCode || !date) {
 		return res.sendStatus(400);
 	}
 
@@ -15,8 +15,9 @@ router.post("/", async (req: Request, res: Response) => {
 
 		filter.course_code = (courseCode as string).toUpperCase();
 		filter.school_id = schoolId;
+		filter.date = date;
 
-		const examData = await ExaminationData.findOne(filter);
+		const examData = await Examination.findOne(filter);
 
 		return res.status(200).json(examData);
 	} catch (error) {

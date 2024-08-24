@@ -1,6 +1,6 @@
 import { Course } from "../models/Course";
 import School from "../models/School";
-import ExaminationData from "../models/Examination";
+import Examination from "../models/Examination";
 import convertMapTypeToObjectLiteral from "./convert_map_to_object";
 import gradeTheoryAnswers from "./grade_theory";
 
@@ -31,7 +31,7 @@ async function gradeStudentsAnswersAsync(
 ) {
 	const course: any = await Course.findOne({ school_id, course_code });
 	const school = await School.findById(school_id);
-	const examData = await ExaminationData.findOne({
+	const examData = await Examination.findOne({
 		school_id,
 		course_code,
 		date,
@@ -64,7 +64,7 @@ async function gradeStudentsAnswersAsync(
 		}),
 	);
 
-	await ExaminationData.updateOne(
+	await Examination.updateOne(
 		{ school_id, course_name, course_code, date },
 		{
 			grading_status: "done",
