@@ -2,25 +2,79 @@ import OpenAI from "openai";
 import convertMapTypeToObjectLiteral from "./convert_map_to_object";
 import Candidate from "./types/Candidate";
 import groupEssayAnswers from "./groupEssayAnswers";
-import { getGradingPrompt } from "./getGPTPrompts";
+import { getGradingPrompt, getDiscrepancyFixPrompt } from "./getGPTPrompts";
 
 const getGradeResult = (chatGptResponse: any) => {
 	if (chatGptResponse.choices.length == 0) {
 		return {
-			totalScore: 0,
-			summary: "No grade assigned",
+			markAssigned: 0,
+			reason: "No grade assigned",
+			discrepancy: "No discrepancy found",
 		};
 	}
 
 	const gradeResultJson = JSON.parse(
 		chatGptResponse.choices[0].message.content,
 	);
-
-	return {
-		totalScore: gradeResultJson.markAssigned,
-		summary: gradeResultJson.reason,
-	};
+	return gradeResultJson;
 };
+
+const getCourseDetails = (course: any, index: number) => {
+	const courseDetails = (
+		convertMapTypeToObjectLiteral(
+			course.theory_question_and_answer as any,
+		) as any
+	)[`${index + 1}`];
+	const totalScoreForQuestion = courseDetails.mark;
+	const question = courseDetails.question;
+	const context = courseDetails.context
+		.map((psAnsIt: string) => `- ${psAnsIt}\n`)
+		.join(
+			"\n\n--------------------------------------------------------------------------------------\n\n",
+		);
+	const gradingRubric = courseDetails.rubric;
+	return {
+		totalScoreForQuestion,
+		question,
+		context,
+		gradingRubric,
+	};
+}
+
+const fixGradingDiscrepancies = async (school: string, course: string, gradeResult: any) => {
+	const prompt = getDiscrepancyFixPrompt(school, course, JSON.stringify(gradeResult));
+	const openai = new OpenAI({ apiKey: `${process.env.OPEN_AI_KEY}` });
+	const gptResponse: any = await openai.chat.completions.create({
+				messages: [{ role: "user", content: prompt }],
+				model: "gpt-4o-mini",
+				temperature: 0.2,
+			});
+
+	if (gptResponse.choices.length == 0) {
+		return gradeResult;
+	}
+	const fixedResult = gptResponse.choices[0].message.content;
+	const extractedResponse = fixedResult.match(/```json([\s\S]*)```/)?.[1].toString() || fixedResult;
+	const fixedGradeResult = JSON.parse(extractedResponse);
+	return {
+		oldScore: fixedGradeResult.oldScore,
+		newScore: fixedGradeResult.newScore,
+		fix: fixedGradeResult.fix,
+	};
+}
+
+const buildGradeResultResponse = async (acc: any, chatGptResponse: any, question: any, school: string, course: string, studentAnswer: any) => {
+	const gradeResult = getGradeResult(chatGptResponse);
+	const fixedResult = await fixGradingDiscrepancies(school, course, gradeResult);
+	acc.theoryScore += fixedResult!.newScore;
+
+	acc.theoryGradeAndSummary.push({
+		question: question,
+		answer: studentAnswer,
+		mark: fixedResult!.newScore,
+		reason: gradeResult!.summary,
+	});
+}
 
 async function gradeTheoryAnswers(
 	candidateData: Candidate,
@@ -43,20 +97,7 @@ async function gradeTheoryAnswers(
 	return answers.reduce(
 		async (accPromise: any, studentAnswer: string, index: number) => {
 			let acc = await accPromise;
-			const courseDetails = (
-				convertMapTypeToObjectLiteral(
-					course.theory_question_and_answer as any,
-				) as any
-			)[`${index + 1}`];
-			const totalScoreForQuestion = courseDetails.mark;
-			const question = courseDetails.question;
-			const context = courseDetails.context
-				.map((psAnsIt: string) => `- ${psAnsIt}\n`)
-				.join(
-					"\n\n--------------------------------------------------------------------------------------\n\n",
-				);
-			const gradingRubric = courseDetails.rubric;
-
+			const { totalScoreForQuestion, question, context, gradingRubric } = getCourseDetails(course, index);
 			const gptPrompt = getGradingPrompt(
 				school_name,
 				course.name,
@@ -69,21 +110,13 @@ async function gradeTheoryAnswers(
 			);
 
 			const openai = new OpenAI({ apiKey: `${process.env.OPEN_AI_KEY}` });
-			const completion: any = await openai.chat.completions.create({
+			const gradeResponse: any = await openai.chat.completions.create({
 				messages: [{ role: "user", content: gptPrompt }],
 				model: "gpt-4o-mini",
 				temperature: 0.2,
 			});
 
-			const gradeResult = getGradeResult(completion);
-			acc.theoryScore += gradeResult!.totalScore;
-
-			acc.theoryGradeAndSummary.push({
-				question: question,
-				answer: studentAnswer,
-				mark: gradeResult!.totalScore,
-				reason: gradeResult!.summary,
-			});
+			await buildGradeResultResponse(acc, gradeResponse, question, school_name, course, studentAnswer);
 			return acc;
 		},
 		Promise.resolve({ theoryScore: 0, theoryGradeAndSummary: [] }),

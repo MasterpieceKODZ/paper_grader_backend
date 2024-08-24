@@ -1,5 +1,5 @@
 import OpenAI from "openai";
-import { getTheoryAnswersToArrayGPTprompt } from "./getGPTPrompts";
+import { getEssayAnswersGroupingPrompt } from "./getGPTPrompts";
 
 const buildResponse = (gptResponse: any) => {
 	const answersArray = Object.values(
@@ -21,7 +21,7 @@ async function groupEssayAnswers(
 	school_name: string,
 	course_name: string,
 ) {
-	const gptPrompt = getTheoryAnswersToArrayGPTprompt(
+	const gptPrompt = getEssayAnswersGroupingPrompt(
 		answersString,
 		school_name,
 		course_name,

@@ -4,18 +4,18 @@ import Examination from "../models/Examination";
 import convertMapTypeToObjectLiteral from "./convert_map_to_object";
 import gradeTheoryAnswers from "./grade_theory";
 
-function gradeObjectiveAnswers(course_objs: any, student_answer_obj: any) {
-	if (Object.keys(course_objs).length < 1) {
+function gradeObjectiveAnswers(course: any, studentAnswer: any) {
+	const correctAnswers = convertMapTypeToObjectLiteral(course);
+	const studentAnswers = convertMapTypeToObjectLiteral(studentAnswer);
+	if (Object.keys(correctAnswers).length < 1) {
 		return 0;
 	}
 
 	let correctAnswersCount = 0;
 
-	for (let key in course_objs) {
-		if (
-			student_answer_obj.hasOwnProperty(key) &&
-			course_objs[key] === student_answer_obj[key]
-		) {
+	for (let key in correctAnswers) {
+		const isAnswerCorrect = studentAnswers.hasOwnProperty(key) && correctAnswers[key] === studentAnswers[key];
+		if (isAnswerCorrect) {
 			correctAnswersCount++;
 		}
 	}
@@ -31,33 +31,27 @@ async function gradeStudentsAnswersAsync(
 ) {
 	const course: any = await Course.findOne({ school_id, course_code });
 	const school = await School.findById(school_id);
-	const examData = await Examination.findOne({
+	const examination = await Examination.findOne({
 		school_id,
 		course_code,
 		date,
 	});
 
 	const gradedCandidates = await Promise.all(
-		examData!.candidates.map(async (sItem) => {
-			// GRADE OBJECTIVE
-			const studentObjectiveResult = gradeObjectiveAnswers(
-				convertMapTypeToObjectLiteral(course!.objective_question_and_answer),
-				convertMapTypeToObjectLiteral(sItem.objective_answers as any),
-			);
-
-			// GRADE THEORY
+		examination!.candidates.map(async (candidate) => {
+			const studentObjectiveResult = gradeObjectiveAnswers(course!.objective_question_and_answer, candidate.objective_answers as any);
 			const theoryGradeResult = await gradeTheoryAnswers(
-				sItem as any,
+				candidate as any,
 				school!.school_name,
 				course,
 			);
 
 			return {
-				student_name: sItem.student_name,
-				student_id: sItem.student_id,
-				objective_answers: sItem.objective_answers,
+				student_name: candidate.student_name,
+				student_id: candidate.student_id,
+				objective_answers: candidate.objective_answers,
 				objective_score: studentObjectiveResult,
-				theory_answers: sItem.theory_answers,
+				theory_answers: candidate.theory_answers,
 				theory_grade_summary: theoryGradeResult.theoryGradeAndSummary,
 				theory_score: theoryGradeResult.theoryScore,
 			};

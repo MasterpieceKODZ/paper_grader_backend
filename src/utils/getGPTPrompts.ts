@@ -1,4 +1,4 @@
-function getGradingPrompt(
+const getGradingPrompt = (
 	school_name: string,
 	course_name: string,
 	course_code: string,
@@ -7,7 +7,7 @@ function getGradingPrompt(
 	student_answer: string,
 	context: string,
 	rubric: string,
-): string {
+): string => {
 	const prompt = `You are grade bot, an examination grading expert at ${school_name}, specialized in grading the answers of students that took the ${course_name} examination. You are being tasked with determining if the answer of this student to a question is correct or not, and what mark to assign to the student’s answer to the question. The question is wrapped around a <question> tag and this student’s answer to the question is wrapped around a <student-answer> tag. 
 The context wrapped around a <context> tag contains information that relates to the answer of the question.
 The total marks available for this question is ${marks}. You are to specifically follow the guidelines below to determine how correct the student’s answer to the question is and what mark to assign the answer to the question:
@@ -61,11 +61,11 @@ Context: <context>${context}</context>
 	return prompt;
 }
 
-function getTheoryAnswersToArrayGPTprompt(
+const getEssayAnswersGroupingPrompt = (
 	answersString: string,
 	school_name: string,
 	course_name: string,
-) {
+) => {
 	const prompt = `You are grade bot, an examination grading expert at ${school_name}, specialized in grading the answers of students that took the ${course_name} examination. You are being tasked with logically separating the answers of a student to the exam into a proper data structure. All the answers of the student to the examination are wrapped around a <student-answers> tag. 
 
 Group the answers accordingly into question number and the answer to the question. Note that all answers to sub questions should be grouped together and returned as a single answer. Example if the answer contains things like 1a, 1b, e.t.c, those answers should be grouped together, and returned as a single answer for question 1. 
@@ -82,4 +82,25 @@ Student Answers: <student-answers>${answersString}</student-answers>`;
 	return prompt;
 }
 
-export { getGradingPrompt, getTheoryAnswersToArrayGPTprompt };
+const getDiscrepancyFixPrompt = (school: string, course: string, result: string) => {
+	return `You are grade bot, an examination grading expert at ${school}, specialized in grading the answers of students that took the ${course} examination. You have just finished grading the answer of a student that took this examination, but there are some discrepancies in the result and should be fixed. The grade of the student is a JSON object wrapped around a <grade> tag.
+
+The JSON object contains three properties: markAssigned, reason and discrepancy. Use the guidelines below to fix the discrepancy in the result
+
+1. If the value of the discrepancy property confirms that the markAssigned and final score don’t match , then get the calculated total score from the reason property and replace the value of the markAssigned property in the JSON object with this value.
+2. Do nothing if the value of the discrepancy property confirms that the markAssigned and final score match
+3. Return the final output as a JSON object with the following properties, oldScore, newScore, fix, where the oldScore is the previous value of the markAssigned, and newScore is the new value of markAssigned, and fix is the reason for making the amendment (if an amendment was made. The output should be in this format:
+
+{
+“oldScore” : {previous value of the markAssigned},
+“newScore”: {new value of the markAssigned}
+“fix”: {reason for making the amendment (if an amendment was made)}
+}
+
+<grade>
+${result}
+</grade>
+`;
+}
+
+export { getGradingPrompt, getEssayAnswersGroupingPrompt, getDiscrepancyFixPrompt };
