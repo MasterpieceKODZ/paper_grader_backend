@@ -1,5 +1,5 @@
 import { Router, Request, Response } from "express";
-import ExaminationData from "../models/Answers";
+import ExaminationData from "../models/Examination";
 
 const router = Router();
 

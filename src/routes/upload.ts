@@ -2,7 +2,7 @@ import { Router, Request, Response } from "express";
 import multer from "multer";
 import { v1 as vision } from "@google-cloud/vision";
 import Jimp from "jimp";
-import ExaminationData from "../models/Answers";
+import ExaminationData from "../models/Examination";
 
 type MulterFile = {
 	buffer: Buffer;

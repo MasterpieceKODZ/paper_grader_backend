@@ -1,6 +1,6 @@
 import { Course } from "../models/Course";
 import School from "../models/School";
-import ExaminationData from "../models/Answers";
+import ExaminationData from "../models/Examination";
 import convertMapTypeToObjectLiteral from "./convert_map_to_object";
 import gradeTheoryAnswers from "./grade_theory";
 
