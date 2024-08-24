@@ -68,9 +68,14 @@ function getTheoryAnswersToArrayGPTprompt(
 ) {
 	const prompt = `You are grade bot, an examination grading expert at ${school_name}, specialized in grading the answers of students that took the ${course_name} examination. You are being tasked with logically separating the answers of a student to the exam into a proper data structure. All the answers of the student to the examination are wrapped around a <student-answers> tag. 
 
-Group the answers accordingly into question number and the answer to the question, and return the final output as a JSON object. Note that all answers to sub questions should be grouped together and returned as a single answer. Example if the answer contains things like 1a, 1b, e.t.c, those answers should be grouped together, and returned as a single answer for question 1. 
+Group the answers accordingly into question number and the answer to the question. Note that all answers to sub questions should be grouped together and returned as a single answer. Example if the answer contains things like 1a, 1b, e.t.c, those answers should be grouped together, and returned as a single answer for question 1. 
 
-The final output should be something like {"1": "{All answers for question 1}", "2" : "{All answers for question 2}"}
+Return the final output as a JSON object in this format 
+
+{
+"1": "{All answers for question 1}", 
+"2" : "{All answers for question 2}"
+}
 
 Student Answers: <student-answers>${answersString}</student-answers>`;
 
