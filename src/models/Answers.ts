@@ -17,24 +17,27 @@ interface ExaminationData extends Document {
 	}[];
 }
 
-const ExaminationDataSchema: Schema = new Schema({
-	school_id: { type: String, required: true },
-	course_name: { type: String, required: true },
-	course_code: { type: String, required: true },
-	date: { type: Date, required: true },
-	grading_status: { type: String, required: false },
-	candidates: [
-		{
-			student_name: { type: String, required: true },
-			student_id: { type: String, required: true },
-			objective_answers: { type: Map, of: String, required: true },
-			objective_score: { type: Number, required: false },
-			theory_answers: { type: String, required: true },
-			theory_grade_summary: { type: [], required: false },
-			theory_score: { type: Number, required: false },
-		},
-	],
-});
+const ExaminationDataSchema: Schema = new Schema(
+	{
+		school_id: { type: String, required: true },
+		course_name: { type: String, required: true },
+		course_code: { type: String, required: true },
+		date: { type: Date, required: true },
+		grading_status: { type: String, required: false },
+		candidates: [
+			{
+				student_name: { type: String, required: true },
+				student_id: { type: String, required: true },
+				objective_answers: { type: Map, of: String, required: true },
+				objective_score: { type: Number, required: false },
+				theory_answers: { type: String, required: true },
+				theory_grade_summary: { type: [], required: false },
+				theory_score: { type: Number, required: false },
+			},
+		],
+	},
+	{ collection: "examination" },
+);
 
 export default mongoose.model<ExaminationData>(
 	"ExaminationData",
