@@ -72,7 +72,7 @@ async function gradeTheoryAnswers(
 			const completion: any = await openai.chat.completions.create({
 				messages: [{ role: "user", content: gptPrompt }],
 				model: "gpt-4o-mini",
-				temperature: 0.5,
+				temperature: 0.2,
 			});
 
 			const gradeResult = getGradeResult(completion);
