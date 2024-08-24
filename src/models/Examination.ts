@@ -1,6 +1,6 @@
 import mongoose, { Document, Schema } from "mongoose";
 
-interface ExaminationData extends Document {
+interface Examination extends Document {
 	school_id: string;
 	course_name: string;
 	course_code: string;
@@ -17,7 +17,7 @@ interface ExaminationData extends Document {
 	}[];
 }
 
-const ExaminationDataSchema: Schema = new Schema(
+const ExaminationSchema: Schema = new Schema(
 	{
 		school_id: { type: String, required: true },
 		course_name: { type: String, required: true },
@@ -39,7 +39,7 @@ const ExaminationDataSchema: Schema = new Schema(
 	{ collection: "examination" },
 );
 
-export default mongoose.model<ExaminationData>(
+export default mongoose.model<Examination>(
 	"ExaminationData",
-	ExaminationDataSchema,
+	ExaminationSchema,
 );
