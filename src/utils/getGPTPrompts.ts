@@ -32,9 +32,22 @@ Guidelines:
 "reason": {reason}
 }
 
-6. Return the final response as a JSON object with the following properties, markAssigned and reason. The markAssigned is the marks you have assigned this student and the reason is why you assigned the student that mark. Be very detailed and explicit in your reason, and give strong reasons why you are confident that you strictly followed the grading rubric in determining the score of the student.
+6. The final response should be a JSON object with the following properties, markAssigned and reason. The markAssigned is the marks you have assigned this student and the reason is why you assigned the student that mark. The reason should explicitly contain the final score you assigned the student, and an explicit detailed breakdown of how you arrived at this score. The final output should look like this:
+{
+“markAssigned” : {markAssigned}, 
+“reason”: {reason}
+}
 
-7. MAKE SURE YOU ARE NOT ADDING OR SUBTRACTING ANY MARKS TO THE FINAL SCORE. THE FINAL SCORE RETURNED MUST BE ABSOLUTELY CORRECT. DOUBLE CHECK THE FINAL JSON RESPONSE METICULOUSLY AND CORRECT ANY INACCURACIES. MAKE SURE YOUR REASON FOR ASSIGNING THE SCORE (AS SPECIFIED IN THE reason PROPERTY) TALLIES WITH THE markAssigned VALUE. DON’T RETURN A FINAL RESPONSE IF YOU HAVE NOT DOUBLE CHECKED AND MADE SURE THE markAssigned IS ABSOLUTELY CORRECT.
+7. Double check the json object if there are any discrepancies between the markassigned and the reason. if there are any discrepancies between the two properties then fix it.
+
+8. Add a new property to the JSON object called discrepancy. 
+
+9. Carefully analyze the value of markAssigned and the final score stated in the reason. Check if the values of the markAssigned and the final score stated in the reason match. The result of your analysis should follow this format:
+{Yes/No if the values match or don’t match},{Reason why the values match or don’t match}.
+Example, the result can be “Yes the values of the markAssigned and final score stated in the reason match, The values match because ……….”. Sometimes the reason property contains calculations for determining the final score. Check that these calculations or computations are correct and add this to the result. Extract the particular calculation and state if it is correct or not then append this to the result. Put this result in the value of the discrepancy property.
+
+10. Return the final response.
+
 
 Question: <question>${question}</question>
 
