@@ -28,9 +28,9 @@ const ExaminationSchema: Schema = new Schema(
 			{
 				student_name: { type: String, required: true },
 				student_id: { type: String, required: true },
-				objective_answers: { type: Map, of: String, required: true },
+				objective_answers: { type: Map, of: String, required: false },
 				objective_score: { type: Number, required: false },
-				theory_answers: { type: String, required: true },
+				theory_answers: { type: String, required: false },
 				theory_grade_summary: { type: [], required: false },
 				theory_score: { type: Number, required: false },
 			},
