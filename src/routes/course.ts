@@ -53,8 +53,28 @@ courseRouter.post("/get-all-by-school", async (req, res) => {
 	}
 });
 
+// Get all courses by id
+courseRouter.post("/get-by-id", async (req, res) => {
+	const { school_id, course_id } = req.body;
+
+	if (!school_id || !course_id) {
+		return res.sendStatus(400);
+	}
+
+	try {
+		const course = await Course.findById(course_id);
+
+		res.json(course);
+	} catch (err: any) {
+		res.status(500).send(err.message);
+	}
+});
+
 // Update an existing course
-courseRouter.put("/:id", async (req, res) => {
+courseRouter.post("/update/:id", async (req, res) => {
+	console.log("course update request...");
+	console.log(req.body);
+
 	try {
 		const course = await Course.findByIdAndUpdate(req.params.id, req.body, {
 			new: true,
@@ -62,7 +82,7 @@ courseRouter.put("/:id", async (req, res) => {
 		if (!course) {
 			res.status(404).send("Course not found");
 		} else {
-			res.json(course);
+			res.sendStatus(200);
 		}
 	} catch (err: any) {
 		res.status(400).send(err.message);
