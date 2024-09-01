@@ -89,4 +89,22 @@ courseRouter.post("/update/:id", async (req, res) => {
 	}
 });
 
+// delete course
+courseRouter.post("/delete", async (req, res) => {
+	const { school_id, course_code, course_id } = req.body;
+
+	if (!school_id || !course_code || !course_id) {
+		return res.sendStatus(400);
+	}
+
+	try {
+		await Examination.deleteMany({ school_id, course_code });
+		await Course.deleteOne({ _id: course_id });
+
+		return res.sendStatus(200);
+	} catch (err: any) {
+		res.status(500).send(err.message);
+	}
+});
+
 export default courseRouter;
